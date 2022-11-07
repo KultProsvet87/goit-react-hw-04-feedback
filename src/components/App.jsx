@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { useState } from 'react';
 import { FeedbackOptions } from './FeedbackOptions/FeedbackOptions';
 import { Notification } from './Notification/Notification.Styled';
 import { Section } from './Section/section';
@@ -8,57 +8,42 @@ const MainTitle = 'Pleas leave feedbeck';
 const StatisticTitle = 'Statistic';
 const NotificationMessage = 'There is no feedbacks';
 
-export class App extends Component {
-  state = {
-    good: 0,
-    neutral: 0,
-    bad: 0,
+export const App = () => {
+  const [feedBacks, setFeedBacks] = useState({ Good: 0, Neutral: 0, Bad: 0 });
+
+  const onLeaveFeedback = feedBackType => {
+    setFeedBacks({ ...feedBacks, [feedBackType]: feedBacks[feedBackType] + 1 });
   };
 
-  onLeaveFeedback = feedBackType => {
-    this.setState(prev => {
-      return {
-        [feedBackType]: prev[feedBackType] + 1,
-      };
-    });
-  };
-
-  totalFeedBeck = () => {
-    const values = Object.values(this.state);
+  const totalFeedBeck = () => {
+    const values = Object.values(feedBacks);
     return values.reduce((acc, value) => acc + value, 0);
   };
 
-  positivePercentage = () => {
-    return Math.round((this.state.good * 100) / this.totalFeedBeck());
+  const positivePercentage = () => {
+    return Math.round((feedBacks.Good * 100) / totalFeedBeck());
   };
 
-  render() {
-    return (
-      <>
-        <div>React homework template</div>
-        <Section title={MainTitle}>
-          <FeedbackOptions
-            options={this.state}
-            onLeaveFeedback={this.onLeaveFeedback}
+  return (
+    <>
+      <div>React homework template</div>
+      <Section title={MainTitle}>
+        <FeedbackOptions
+          options={feedBacks}
+          onLeaveFeedback={onLeaveFeedback}
+        />
+      </Section>
+      {totalFeedBeck() ? (
+        <Section title={StatisticTitle}>
+          <Statistics
+            feedBacks={feedBacks}
+            total={totalFeedBeck()}
+            positivePercentage={positivePercentage()}
           />
         </Section>
-        {this.totalFeedBeck() ? (
-          <Section title={StatisticTitle}>
-            <Statistics
-              good={this.state.good}
-              neutral={this.state.neutral}
-              bad={this.state.bad}
-              total={this.totalFeedBeck()}
-              positivePercentage={this.positivePercentage()}
-            />
-          </Section>
-        ) : (
-          <Notification children={NotificationMessage} />
-        )}
-      </>
-    );
-  }
-}
-// = () => {
-//
-// };
+      ) : (
+        <Notification children={NotificationMessage} />
+      )}
+    </>
+  );
+};
